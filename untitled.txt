@@ -1,0 +1,8 @@
+    if piece_name == :Knight
+      move_choices     = [
+        [ 1, 0],
+        [-1, 0],
+        [ 0,-1],
+        [ 0, 1]
+        ]
+        end
