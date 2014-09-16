@@ -25,6 +25,22 @@ class Board
     grid[number - 8][LETTER_MAP[letter]] = piece
   end
 
+  # # def move(start_pos, end_pos)
+# #     begin
+# #       unless self[start_pos].valid_move?(start_pos, end_pos)
+# #
+# #     rescue IllegalMoveError
+# #       puts "Enter a valid move: "
+# #       retry
+# #     end
+# #
+# #     self[start_pos], self[end_pos] = nil, self[start_pos]
+# #   end
+#
+#   nil
+# end
+
+
   def set_pieces#(row, team)
 
     self["a8"] = SlidingPiece.new(:Rook, 'a8', self.grid, :black)
@@ -72,6 +88,10 @@ class Board
 end
 
 class Piece
+  LETTER_MAP = {'a' => 0,'b' => 1,'c' => 2,'d' => 3,
+                'e' => 4,'f' => 5,'g' => 6,'h' => 7 }
+  NUMBER_MAP = LETTER_MAP.invert
+
   attr_reader :piece_name, :board, :color
   attr_accessor :pos
 
@@ -155,8 +175,61 @@ class SlidingPiece < Piece
     @move_diag
   end
 
-  def moves
+  def same_team?(other_piece)
+    self.color == other_piece.color
+  end
 
+  def moves
+    moves = []
+    origin = self.pos
+    o_letter = origin[0]
+    o_number = origin[1].to_i
+    letter_number = LETTER_MAP[o_letter]
+
+    # if @move_horiz == true
+    #   ('a'..'h').each do |letter|
+    #     moves << "#{letter}#{o_number}" unless "#{letter}#{o_number}" == origin
+    #   end
+    #   (1..8).each do |num|
+    #     moves << "#{o_letter}#{num}" unless "#{o_letter}#{num}" == origin
+    #   end
+    # end
+
+    if @move_horiz == true
+      (1..8).each do |i|
+        if (letter_number + i).between?(0, 7) && (o_number).between?(1, 8)
+          moves << ["#{NUMBER_MAP[letter_number + i]}#{o_number}",:E,i]
+        end
+        if (letter_number - i).between?(0, 7) && (o_number).between?(1, 8)
+          moves << ["#{NUMBER_MAP[letter_number - i]}#{o_number}",:W,i]
+        end
+        if (letter_number).between?(0, 7) && (o_number + i).between?(1, 8)
+          moves << ["#{NUMBER_MAP[letter_number]}#{o_number + i}",:N,i]
+        end
+        if (letter_number).between?(0, 7) && (o_number - i).between?(1, 8)
+          moves << ["#{NUMBER_MAP[letter_number]}#{o_number - i}",:S,i]
+        end
+      end
+    end
+
+    if @move_diag == true
+      (1..8).each do |i|
+        if (letter_number + i).between?(0, 7) && (o_number + i).between?(1, 8)
+          moves << ["#{NUMBER_MAP[letter_number + i]}#{o_number + i}",:NE,i]
+        end
+        if (letter_number + i).between?(0, 7) && (o_number - i).between?(1, 8)
+          moves << ["#{NUMBER_MAP[letter_number + i]}#{o_number - i}",:SE,i]
+        end
+        if (letter_number - i).between?(0, 7) && (o_number + i).between?(1, 8)
+          moves << ["#{NUMBER_MAP[letter_number - i]}#{o_number + i}",:NW,i]
+        end
+        if (letter_number - i).between?(0, 7) && (o_number - i).between?(1, 8)
+          moves << ["#{NUMBER_MAP[letter_number - i]}#{o_number - i}",:SW,i]
+        end
+      end
+    end
+
+    moves
   end
 end
 
@@ -167,20 +240,15 @@ class SteppingPiece < Piece
   end
 end
 
-# p1 = SlidingPiece.new(:Rook, [0,0], Board.new)
-# puts p1.draw
+class IllegalMoveError < StandardError
+end
 
-g = Board.new
-g.draw_board
-# g['a8'], g['a4'] = nil, g['a8']
-p g['a8'].object_id
-g['a8']= g['a1']
-p g['a8'].object_id
-g['a1'] = nil
+# test_bishop = SlidingPiece.new(:Bishop, "a1", Board.new, :black)
+# test_bishop.moves.each {|move| p move}
 
+# test_rook = SlidingPiece.new(:Rook, "a8", Board.new, :black)
+# test_rook.moves.each {|move| p move}
 
+# test_queen = SlidingPiece.new(:Queen, "c4", Board.new, :black)
+# test_queen.moves.each {|move| p move}
 
-
-
-g.draw_board
-# p g['a8'].pos
