@@ -14,7 +14,7 @@ class Chess
     until board.checkmate?(:black) || board.checkmate?(:white)
       puts "#{@turn.capitalize} is in check" if board.in_check?(@turn)
 
-      puts "#{@turn.capitalize} choose a move: b8,a6 for example".colorize(:blue).on_red
+      puts "#{@turn.capitalize} choose a move: b8,a6 for example".colorize(:blue)
       player_move = gets.chomp.split(",")
       start_pos, end_pos = player_move[0], player_move[1]
 
@@ -186,21 +186,52 @@ class Board
     grid.flatten.compact
   end
 
+  # def draw_board
+  #   num = 9
+  #   ('A'..'H').each {|letter| print "|#{letter}"}
+  #     puts "|"
+  #   grid.each_index do |col_index|
+  #     num -= 1
+  #     (0..7).each do |row_index|
+  #       new_pos = pos([col_index,row_index])
+  #       if self[new_pos].nil?
+  #         print "|_"
+  #       else
+  #         print "|#{self[new_pos].draw}"
+  #       end
+  #     end
+  #     print "|#{num}"
+  #     puts
+  #   end
+  # end
+
   def draw_board
     num = 9
-    ('A'..'H').each {|letter| print "|#{letter}"}
-      puts "|"
+    color_dark = false
+
+    ('A'..'H').each {|letter| print " #{letter}"}
+      puts " "
     grid.each_index do |col_index|
       num -= 1
+      color_dark = !color_dark
       (0..7).each do |row_index|
         new_pos = pos([col_index,row_index])
         if self[new_pos].nil?
-          print "|_"
+          if color_dark
+            print "  ".colorize(:default).on_light_black
+          else
+            print "  "
+          end
         else
-          print "|#{self[new_pos].draw}"
+          if color_dark
+           print " #{self[new_pos].draw}".colorize(:default).on_light_black
+         else
+           print " #{self[new_pos].draw}"
+         end
         end
+        color_dark = !color_dark
       end
-      print "|#{num}"
+      print " #{num}"
       puts
     end
   end
